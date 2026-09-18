@@ -24,6 +24,7 @@ or read it to see what the wiring actually looks like once installed.
 | `docs/agentic-sdd-protocol-v2.md` | The protocol — the *what*. |
 | `docs/agentic-sdd-setup-guide.md` | The setup guide — the *how*. |
 | `docs/tooling-versions.md` | Pinned versions **and every place the installed tools deviate from the guide.** Read this before debugging anything. |
+| `docs/bootstrap-new-repo.md` | Step-by-step procedure for standing the framework up on a new greenfield repo. |
 | `docs/sdd-setup-status.md` | Appendix A checklist with the real state of this repo, including what was deliberately left out. |
 | `specs/` | Spec Kit feature artifacts (`spec.md`, `plan.md`, `tasks.md`). |
 | `.sdd/` | Handoff contracts, task briefs, reports, Track C change records. |
@@ -32,6 +33,11 @@ or read it to see what the wiring actually looks like once installed.
 ---
 
 ## Using it as a template for a new project
+
+**Full step-by-step procedure: [`docs/bootstrap-new-repo.md`](docs/bootstrap-new-repo.md)**
+— every command in it was actually run when this template was built.
+
+The short version:
 
 ```bash
 git clone <this-repo> my-project && cd my-project
