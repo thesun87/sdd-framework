@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,21 @@ CV = ["CV001_defect_against_documented_behaviour",
       "CV009_reproducible_by_test",
       "CV010_single_module_scope"]
 
+# A ticket id becomes a path segment under .sdd/direct/. Anything that is not
+# a single safe segment (separators, "..", spaces) would place the record
+# outside the audit tree while change_id still claims otherwise — SDD-001.
+TICKET_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def validate_ticket(ticket: str) -> str:
+    if not TICKET_RE.fullmatch(ticket) or ".." in ticket:
+        raise SystemExit(
+            f"invalid ticket id: {ticket!r}\n"
+            "A ticket id must be a single path segment matching "
+            "[A-Za-z0-9][A-Za-z0-9._-]* (e.g. BUG-4821)."
+        )
+    return ticket
+
 
 def main() -> None:
     p = argparse.ArgumentParser()
@@ -37,8 +53,9 @@ def main() -> None:
                             "dependency-patch", "internal-refactor"])
     a = p.parse_args()
 
+    ticket = validate_ticket(a.ticket)
     today = datetime.date.today().isoformat()
-    change_id = f"{today}-{a.ticket}"
+    change_id = f"{today}-{ticket}"
     d = SDD / "direct" / change_id
     d.mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +68,7 @@ def main() -> None:
         "change_id": change_id,
         "track": "C",
         "type": a.type,
-        "ticket": a.ticket,
+        "ticket": ticket,
         "severity": "TODO",
         "created_at": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
         "constitution": {"path": ".specify/memory/constitution.md",
