@@ -35,16 +35,32 @@ or read it to see what the wiring actually looks like once installed.
 ## Using it as a template for a new project
 
 **Full step-by-step procedure: [`docs/bootstrap-new-repo.md`](docs/bootstrap-new-repo.md)**
-— every command in it was actually run when this template was built.
+— every command in it was actually run when this template was built. It covers
+two paths:
 
-The short version:
+- **Path B — clone this repo** (~30 min). Everything except the Superpowers
+  plugin registration travels with the repo: all 39 skills, Spec Kit's bash
+  scripts, BMAD's config, the glue layer. Verified: clone → `rm -rf .git` →
+  `git init` → `npm test` 12/12 green, no reinstall. Freezes you at this
+  template's tool versions.
+- **Path A — install from scratch** (1–2 h). Newest tool versions, works on a
+  new machine or a non-Claude-Code harness.
+
+Both paths still require Phase 4 (adapt `verification.md` and the glossary to
+your project) and Phase 6 (build and freeze the baseline). Cloning does not
+shorten those.
+
+The short version of Path B:
 
 ```bash
 git clone <this-repo> my-project && cd my-project
-rm -rf .git && git init -b main
+git remote set-url origin <new-repo-url>
+sed -i 's/sdd-framework/my-product/g' package.json _bmad/config.toml _bmad/bmm/config.yaml _bmad/core/config.yaml
+rm -rf .sdd/direct/2026-09-18-SDD-001 docs/sdd-setup-status.md
+npm test
 ```
 
-Then, in order:
+For Path A, in order:
 
 1. **Reinstall the toolchain** into the new repo — the installers write
    machine-specific manifests, so do not rely on the copied ones.

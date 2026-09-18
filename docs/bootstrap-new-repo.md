@@ -4,17 +4,157 @@ Quy trình thủ công, từng bước, chạy copy-paste được. Mọi lệnh
 đã được chạy thật khi dựng chính repo template này (2026-09-18) — không phải
 chép lại từ guide.
 
-**Thời gian thực tế:** Phase 1–5 khoảng 1–2 giờ. Phase 6 (baseline) là 1–5 ngày
-làm việc của con người, không phải của agent. Đừng nén nó lại.
-
 Ký hiệu dùng xuyên suốt:
 
 ```bash
-export TEMPLATE=/home/tuannguyen/projects/ai-learning/sdd-framework   # repo này
-export NEW=/đường/dẫn/tới/repo-mới                                    # repo đích
+export TEMPLATE=/đường/dẫn/tới/sdd-framework      # repo template này
+export NEW=/đường/dẫn/tới/repo-mới                # repo đích
 ```
 
 ---
+
+# Chọn cách triển khai
+
+| | **Cách A — cài từ đầu** | **Cách B — clone template** |
+|---|---|---|
+| Thời gian | 1–2 giờ (chưa tính baseline) | ~30 phút |
+| Lấy được version mới nhất của 3 tool | ✅ | ❌ đóng băng ở version của template |
+| Máy khác / người khác | ✅ | ⚠️ cần kiểm tra thêm (xem cuối Cách B) |
+| Harness khác Claude Code | ✅ | ❌ skill trong repo là bản Claude Code |
+| Rủi ro lệch manifest | thấp | thấp nếu làm đúng, cao nếu copy nửa vời |
+
+**Chọn Cách B khi:** cùng máy, cùng Claude Code, muốn bắt đầu ngay, và chấp nhận
+version tool bị đóng băng theo template.
+
+**Chọn Cách A khi:** máy mới, người mới, harness khác, hoặc muốn version mới nhất.
+
+Cả hai cách **đều phải làm PHASE 4 và PHASE 6** — đó là phần không copy được.
+
+---
+
+# CÁCH B — Clone template
+
+Đã kiểm chứng thật trên repo này: clone → `rm -rf .git` → `git init` → `npm test`
+12/12 xanh, cả 4 glue script chạy đúng, không cài lại gì.
+
+### Vì sao clone được
+
+Không file nào được commit chứa đường dẫn tuyệt đối. BMAD dùng placeholder
+`{project-root}`; manifest của Spec Kit dùng content-hash chứ không dùng path.
+Và những thứ sau đã nằm sẵn trong repo, không cần cài lại:
+
+| Thành phần | Nằm trong repo? |
+|---|---|
+| 10 skill `speckit-*` | ✅ `.claude/skills/` |
+| 29 skill `bmad-*` | ✅ `.claude/skills/` |
+| 6 script bash của Spec Kit | ✅ `.specify/scripts/bash/` |
+| Template spec/plan/tasks/checklist | ✅ `.specify/templates/` |
+| Config + manifest của BMAD | ✅ `_bmad/` |
+| 4 glue script + 4 slash command | ✅ |
+| Code plugin Superpowers | ❌ **nằm ở cache global của máy**, không theo repo |
+| CLI `specify`, `npx bmad-method` | ❌ mức máy — **chỉ cần khi muốn cài lại / nâng cấp**, không cần để vận hành |
+
+### B.1 — Clone
+
+Hai lựa chọn, khác nhau ở chỗ có giữ lịch sử hay không:
+
+```bash
+# giữ lịch sử (khuyến nghị) — giữ được commit ghi lại một vòng Track C hoàn chỉnh
+git clone "$TEMPLATE" "$NEW" && cd "$NEW"
+git remote set-url origin <url-repo-mới>
+
+# hoặc bắt đầu lịch sử sạch
+cp -r "$TEMPLATE" "$NEW" && cd "$NEW"
+rm -rf .git && git init -b main
+```
+
+> Lịch sử của template chứa commit `41e88fa` — một vòng Track C đầy đủ: gate
+> CV001–CV010 → test đỏ trước → root cause → fix tối thiểu → verify → report.
+> Xoá `.git` là mất bằng chứng quy trình từng chạy được trên thực tế. Cân nhắc
+> giữ, ít nhất cho đến khi team đã chạy được vòng đầu tiên của chính mình.
+
+### B.2 — Đổi tên project
+
+BMAD dùng `project_name` để đặt tên artifact nó sinh ra, nên bỏ qua bước này sẽ
+ra file mang tên template:
+
+```bash
+sed -i 's/sdd-framework/<tên-project-mới>/g' \
+  package.json _bmad/config.toml _bmad/bmm/config.yaml _bmad/core/config.yaml
+grep -rn 'sdd-framework' package.json _bmad/    # phải rỗng
+```
+
+Nếu người dùng khác với người cài template:
+
+```bash
+sed -i 's/Tuannguyen/<tên-bạn>/g' _bmad/config.user.toml _bmad/bmm/config.yaml _bmad/core/config.yaml
+```
+
+### B.3 — Bật lại Superpowers
+
+Đây là thứ **duy nhất** không theo repo. Plugin đăng ký theo *đường dẫn project*
+trong `~/.claude/plugins/installed_plugins.json`, còn code plugin nằm ở cache
+global. `.claude/settings.json` đã khai `enabledPlugins` nên thường tự bật.
+
+Mở Claude Code tại repo mới, gõ `/help`. Không thấy `superpowers:*` thì:
+
+```text
+/plugin install superpowers@claude-plugins-official
+/reload-plugins
+```
+
+### B.4 — Xoá hiện vật demo của template
+
+Giữ lại sẽ thành rác gây nhiễu audit trail của bạn:
+
+```bash
+rm -rf .sdd/direct/2026-09-18-SDD-001   # Track C pilot, chỉ để minh hoạ
+rm -f docs/sdd-setup-status.md          # checklist của repo template, không phải của bạn
+rm -f README.md                         # README mô tả template, viết lại cho sản phẩm
+# giữ docs/bootstrap-new-repo.md nếu muốn tham chiếu, xoá nếu không
+```
+
+Giữ nguyên `docs/agentic-sdd-protocol-v2.md` và `docs/agentic-sdd-setup-guide.md`
+— `CLAUDE.md` trỏ tới chúng, và `/sdd-track` đọc tiêu chí CV001–CV010 từ đó.
+
+### B.5 — Kiểm chứng trước khi tin
+
+```bash
+npm test          # 12/12 xanh
+npm run lint
+python3 scripts/sdd/sdd_validate.py --feature khong-ton-tai   # phải in FAIL HV000
+```
+
+Ba lệnh này xanh nghĩa là glue layer sống sót qua việc clone. Chưa nghĩa là
+verification contract đúng với dự án của bạn — đó là PHASE 4.
+
+### B.6 — Tiếp tục ở PHASE 4 và PHASE 6
+
+Clone không thay thế được hai phần này:
+
+- **PHASE 4** — `verification.md` đang trỏ vào lệnh test *của template*, không
+  phải của sản phẩm bạn. `glossary.md` mới chỉ có từ vựng quy trình.
+- **PHASE 6** — `baseline-freeze.yaml` đang `draft`; `prd.md` và
+  `architecture.md` chưa tồn tại vì chưa có sản phẩm nào.
+
+Bỏ qua PHASE 4 là trường hợp nguy hiểm nhất: validator vẫn PASS (vì lệnh test
+của template chạy được), nhưng nó đang kiểm chứng sai thứ.
+
+### Khi nào Cách B KHÔNG dùng được
+
+| Tình huống | Vì sao | Làm gì |
+|---|---|---|
+| Máy khác | `specify` CLI và `npx bmad-method` chưa có; cache plugin Superpowers chưa có | Cài 3 tool ở mức máy (PHASE 2), phần repo vẫn clone được |
+| Harness khác Claude Code | `.claude/skills/` là bản render cho Claude Code | Chạy Cách A với `--integration <harness>` và `--tools <harness>` |
+| Muốn version mới nhất | template đóng băng ở Spec Kit 1.0.8 / BMAD 6.12.0 / Superpowers 6.3.0 | Cách A, rồi cập nhật `docs/tooling-versions.md` và xác minh lại `CLAUDE.md` §6 |
+| Brownfield | BMAD đã cài sẵn trong template, mà brownfield không nên có | Clone rồi `rm -rf _bmad .claude/skills/bmad-*`, sửa `CLAUDE.md` §1/§6 |
+
+---
+
+# CÁCH A — Cài từ đầu
+
+**Thời gian thực tế:** Phase 1–5 khoảng 1–2 giờ. Phase 6 (baseline) là 1–5 ngày
+làm việc của con người, không phải của agent. Đừng nén nó lại.
 
 ## PHASE 0 — Quyết định trước khi gõ lệnh nào
 
@@ -417,22 +557,32 @@ không có SHA thì không phát hiện được handoff lỗi thời.
 
 ## Danh sách kiểm cuối
 
+Cột đánh dấu cách nào cần dòng nào.
+
 ```text
-[ ] node/python/uv/git đạt phiên bản tối thiểu
-[ ] git repo khởi tạo, commit đầu tiên tồn tại
-[ ] specify init chạy xong, .specify/memory/constitution.md tồn tại
-[ ] BMAD cài với core.output_folder=docs/baseline (chỉ repo Track A)
-[ ] Superpowers cài qua /plugin, /help thấy các skill
-[ ] glue layer copy sang, KHÔNG copy .claude/skills .specify/scripts _bmad
-[ ] verification.md có lệnh THẬT, đã chạy từng lệnh, tất cả xanh
-[ ] parse_verification() in ra đúng dict mong đợi
-[ ] glossary có từ vựng nghiệp vụ, không chỉ từ vựng quy trình
-[ ] CLAUDE.md §6 khớp với /help và module-help.csv của bản vừa cài
-[ ] tooling-versions.md không còn placeholder, có tên người sở hữu nâng cấp
-[ ] validator đã được chạy với handoff cố tình hỏng — NÓ ĐÃ CHẶN
-[ ] người ra quyết định làm rõ yêu cầu có tên và có SLA
-[ ] CI guards (setup guide §7) — hoặc đã cài, hoặc đã ghi nhận là lỗ hổng
+A B
+─────────────────────────────────────────────────────────────────────────
+✓ ·  node/python/uv/git đạt phiên bản tối thiểu
+✓ ✓  git repo khởi tạo, commit đầu tiên tồn tại
+✓ ·  specify init chạy xong, .specify/memory/constitution.md tồn tại
+✓ ·  BMAD cài với core.output_folder=docs/baseline (chỉ repo Track A)
+✓ ✓  Superpowers bật được, /help thấy các skill superpowers:*
+✓ ·  glue layer copy sang, KHÔNG copy .claude/skills .specify/scripts _bmad
+· ✓  project_name đã đổi ở package.json + 3 file _bmad/
+· ✓  hiện vật demo của template đã xoá (.sdd/direct/…SDD-001, sdd-setup-status)
+· ✓  npm test 12/12 xanh sau khi clone
+✓ ✓  verification.md có lệnh THẬT của dự án, đã chạy từng lệnh, tất cả xanh
+✓ ✓  parse_verification() in ra đúng dict mong đợi
+✓ ✓  glossary có từ vựng nghiệp vụ, không chỉ từ vựng quy trình
+✓ ✓  CLAUDE.md §6 khớp với /help và module-help.csv của bản đang dùng
+✓ ✓  tooling-versions.md không còn placeholder, có tên người sở hữu nâng cấp
+✓ ✓  validator đã được chạy với handoff cố tình hỏng — NÓ ĐÃ CHẶN
+✓ ✓  người ra quyết định làm rõ yêu cầu có tên và có SLA
+✓ ✓  CI guards (setup guide §7) — hoặc đã cài, hoặc đã ghi nhận là lỗ hổng
 ```
+
+Bốn dòng cuối giống nhau ở cả hai cách — clone nhanh hơn, nhưng không rút ngắn
+được phần nào trong số đó.
 
 Dòng áp chót quan trọng nhất trước khi giao cho người khác dùng. Dòng cuối là
 thứ quyết định mọi luật trong `CLAUDE.md` §3 là quy tắc hay chỉ là lời khuyên.
