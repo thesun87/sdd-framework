@@ -199,14 +199,14 @@ git add -A && git commit -m "chore(sdd): import glue layer from template"
 Khối ` ```commands ` được parse thẳng vào mọi handoff. `test` và `lint` là bắt
 buộc (HV009), `regression` bắt buộc với Track B (BF003).
 
-```markdown
+````markdown
 ```commands
 test: <lệnh test thật của dự án>
 lint: <lệnh lint thật>
 regression: <suite phải luôn xanh>
 build: <lệnh build>
 ```
-```
+````
 
 **Kiểm chứng ngay, đừng tin là nó đúng:**
 
