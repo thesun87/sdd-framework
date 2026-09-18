@@ -32,8 +32,11 @@ Verified against the versions actually installed here (BMAD v6.12.0 exposes
   `bmad-review`, `bmad-qa-generate-e2e-tests`, `bmad-retrospective`
   — Superpowers owns execution and review.
 - `/speckit-implement` — Superpowers owns execution. Spec Kit stops at `tasks.md`.
-- `/superpowers:write-plan` and `/superpowers:brainstorm` when a validated
+- `superpowers:writing-plans` and `superpowers:brainstorming` when a validated
   `handoff.yaml` exists — `tasks.md` IS the plan. Do not create a second one.
+- `superpowers:executing-plans` — it drives a *Superpowers* plan document.
+  Our plan is `specs/<feature>/tasks.md`, executed by
+  `superpowers:subagent-driven-development`. Using both means two executors.
 - `bmad-project-context` — it writes a managed block into a root `AGENTS.md`,
   which would compete with this file. If you need it, run it on a
   `baseline/*` branch and curate the output by hand.
@@ -44,18 +47,24 @@ If you believe one of these is needed, stop and ask the human.
 
 When `.sdd/<feature>/handoff.yaml` exists and validation passed:
 
-- SKIP the `brainstorming` skill. The design is `specs/<feature>/spec.md`.
-- SKIP the `writing-plans` skill. The plan is `specs/<feature>/plan.md` +
-  `specs/<feature>/tasks.md`.
-- USE `using-git-worktrees`, `subagent-driven-development`,
-  `test-driven-development`, `requesting-code-review`,
-  `verification-before-completion`, `finishing-a-development-branch`.
+- SKIP `superpowers:brainstorming`. The design is `specs/<feature>/spec.md`.
+  Its description says "You MUST use this before any creative work" — that
+  instruction is overridden here, by this file, whenever a validated handoff
+  exists. State that you are skipping it and why.
+- SKIP `superpowers:writing-plans` and `superpowers:executing-plans`.
+  The plan is `specs/<feature>/plan.md` + `specs/<feature>/tasks.md`.
+- USE `superpowers:using-git-worktrees`, `superpowers:subagent-driven-development`,
+  `superpowers:test-driven-development`, `superpowers:requesting-code-review`,
+  `superpowers:receiving-code-review`,
+  `superpowers:verification-before-completion`,
+  `superpowers:finishing-a-development-branch`,
+  and `superpowers:dispatching-parallel-agents` for independent tasks.
 - Each task's execution context is `.sdd/<feature>/task-<NNN>-brief.md`, not the
   whole repository and not the whole spec.
 
-In Track C, use `systematic-debugging`, `test-driven-development`,
-`requesting-code-review`, `verification-before-completion`. Skip brainstorming
-and planning.
+In Track C, use `superpowers:systematic-debugging`,
+`superpowers:test-driven-development`, `superpowers:requesting-code-review`,
+`superpowers:verification-before-completion`. Skip brainstorming and planning.
 
 **Worktrees:** Spec Kit resolves the active feature from
 `SPECIFY_FEATURE_DIRECTORY` → `SPECIFY_FEATURE` → `.specify/feature.json`
@@ -108,6 +117,21 @@ BMAD (v6.12.0, skills — invoke by skill name):
   Legacy recon     : bmad-walkthrough, bmad-deep-recon (one-time baseline
                      reconstruction only, then curate by hand and freeze)
   Menu of the truth: bmad-help  /  _bmad/bmm/module-help.csv
+
+Superpowers (v6.3.0, skills — invoke by skill name):
+  Execution : superpowers:using-git-worktrees
+              superpowers:subagent-driven-development
+              superpowers:dispatching-parallel-agents
+              superpowers:test-driven-development
+  Debugging : superpowers:systematic-debugging
+  Review    : superpowers:requesting-code-review
+              superpowers:receiving-code-review
+  Closing   : superpowers:verification-before-completion
+              superpowers:finishing-a-development-branch
+  FORBIDDEN in Tracks A/B once a handoff is validated:
+              superpowers:brainstorming
+              superpowers:writing-plans
+              superpowers:executing-plans
 
 Glue:  /sdd-track  /sdd-handoff  /sdd-validate  /sdd-change
 ```

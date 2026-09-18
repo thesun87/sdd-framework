@@ -4,9 +4,10 @@ Appendix A of `agentic-sdd-setup-guide.md`, with the real state of this reposito
 
 ## FOUNDATION
 - [x] `docs/tooling-versions.md` with real versions, no placeholders
-- [ ] **Superpowers installed** — the plugin is present in the Claude Code cache
-      (v5.0.7) but scoped to another project. Run inside Claude Code, here:
-      `/plugin install superpowers@claude-plugins-official`, then `/help` to confirm.
+- [x] Superpowers installed and active — v6.3.0, scoped to this project,
+      enabled via `.claude/settings.json`. All 7 skills the protocol needs are
+      present, and the 3 it suppresses (`brainstorming`, `writing-plans`,
+      `executing-plans`) are named explicitly in `CLAUDE.md` §1/§2.
 - [x] Spec Kit initialized; `.specify/memory/constitution.md` and `specs/` exist
 - [x] BMAD installed (v6.12.0, `bmm` only) with `core.output_folder=docs/baseline`
 - [x] `git worktree` works (git 2.43.0)
@@ -73,8 +74,7 @@ One out-of-scope defect surfaced mid-pilot (`npm test` passed a directory to
 
 ## What to do next
 
-1. `/plugin install superpowers@claude-plugins-official` inside this repo.
-2. Decide whether this repo stays a template or gets a real product. If real:
+1. Decide whether this repo stays a template or gets a real product. If real:
    `bmad-product-brief` → `bmad-prd` → `bmad-architecture` → curate into
    `docs/baseline/` → set `baseline-freeze.yaml` to `frozen` with your name.
 3. Append domain terms to `glossary.md` before the first feature.

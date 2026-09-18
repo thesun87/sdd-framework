@@ -20,3 +20,6 @@ __pycache__/
 # ── OS / editor ────────────────────────────────────────────────────
 .DS_Store
 *.swp
+
+# Claude Code per-machine overrides (team settings live in .claude/settings.json)
+.claude/settings.local.json

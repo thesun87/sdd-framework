@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | specify-cli (Spec Kit) | `uv tool install specify-cli` | 1.0.8 | 2026-09-18 | Tuan Nguyen |
 | BMAD (core + bmm) | `npx bmad-method` stable | 6.12.0 | 2026-09-18 | Tuan Nguyen |
-| Superpowers | `superpowers@claude-plugins-official` | 5.0.7 | 2026-09-18 | Tuan Nguyen |
+| Superpowers | `superpowers@claude-plugins-official` | 6.3.0 | 2026-09-18 | Tuan Nguyen |
 | Claude Code | stable | 2.1.276 | 2026-09-18 | Tuan Nguyen |
 | Python | system | 3.12.3 | 2026-09-18 | Tuan Nguyen |
 | Node | system | 24.13.0 | 2026-09-18 | Tuan Nguyen |
@@ -47,6 +47,7 @@ actually affect the glue, confirmed on the versions above:
 | `create-epics-and-stories` workflow | skill `bmad-create-epics-and-stories` | `CLAUDE.md` §1 |
 | `document-project`, `generate-project-context` | `bmad-walkthrough`, `bmad-deep-recon`, `bmad-project-context` | `CLAUDE.md` §6 |
 | `.specify/feature.json` always present | created on first `/speckit-specify`, and **gitignored** by `.specify/.gitignore` | `sdd_lib.active_feature()` also reads `SPECIFY_FEATURE_DIRECTORY` / `SPECIFY_FEATURE` |
+| `/superpowers:write-plan`, `/superpowers:brainstorm` | skills `superpowers:writing-plans`, `superpowers:brainstorming` (v6 renamed them; `executing-plans` is a third competing executor) | `CLAUDE.md` §1, §2, §6 |
 | `_bmad/bmm/config.yaml` holds output folder | also `_bmad/config.toml` (`[core] output_folder`); installer-managed, override in `_bmad/custom/config.toml` | — |
 | BMAD writes straight to `output_folder` | writes to `docs/baseline/planning-artifacts/` | curate by hand at freeze time |
 
